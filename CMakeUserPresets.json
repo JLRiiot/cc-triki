@@ -1,0 +1,10 @@
+{
+    "version": 4,
+    "vendor": {
+        "conan": {}
+    },
+    "include": [
+        "/Users/josemontana/University/cpp/triqui/build/Debug/generators/CMakePresets.json",
+        "/Users/josemontana/University/cpp/triqui/build/Release/generators/CMakePresets.json"
+    ]
+}
