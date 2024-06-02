@@ -213,8 +213,21 @@ public:
         for (auto const &entity : mEntities)
         {
             auto cell = gCoordinator.GetComponent<GridCell>(entity);
+            auto boardPosition = gCoordinator.GetComponent<BoardPosition>(entity);
 
-            DrawRectangleRec(cell.rect, LIGHTGRAY);
+            auto gameStatus = gCoordinator.GetComponent<GameStatus>(game);
+
+            bool isWinningPosition = false;
+            for (auto winningPosition : gameStatus.winningPositions)
+            {
+                if (winningPosition.row == boardPosition.row && winningPosition.col == boardPosition.col)
+                {
+                    isWinningPosition = true;
+                    break;
+                }
+            }
+
+            DrawRectangleRec(cell.rect, isWinningPosition ? GREEN : LIGHTGRAY);
             DrawRectangleLines(cell.rect.x, cell.rect.y, cell.rect.width, cell.rect.height, BLACK);
             // @FIXME: this is drawing weird characters
             // DrawText(&cell.value, cell.rect.x + 50, cell.rect.y + 50, 50, BLACK);
