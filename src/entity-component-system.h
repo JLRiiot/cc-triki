@@ -13,7 +13,7 @@
 #endif
 
 ECS_EXPORT using Entity = std::uint32_t;
-ECS_EXPORT const Entity MAX_ENTITIES = 5000;
+ECS_EXPORT const Entity MAX_ENTITIES = 11;
 
 ECS_EXPORT using ComponentType = std::uint8_t;
 ECS_EXPORT const ComponentType MAX_COMPONENTS = 32;
@@ -28,7 +28,7 @@ private:
     // Array of signatures where the index corresponds to the entity ID
     std::array<Signature, MAX_ENTITIES> mSignatures{};
     // Total living entities - used to keep limits on how many exist
-    std::uint32_t mLivingEntityCount{};
+    std::uint32_t mLivingEntityCount = 0;
 
 public:
     EntityManager()
@@ -116,6 +116,7 @@ public:
         std::size_t newIndex = mSize;
         mEntityToIndexMap[entity] = newIndex;
         mIndexToEntityMap[newIndex] = entity;
+        mComponentArray[newIndex] = component;
         ++mSize;
     }
 

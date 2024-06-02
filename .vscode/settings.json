@@ -43,6 +43,10 @@
     "typeinfo": "cpp",
     "variant": "cpp",
     "algorithm": "cpp",
-    "cassert": "cpp"
-  }
+    "cassert": "cpp",
+    "unordered_map": "cpp"
+  },
+  "cSpell.words": [
+    "triqui"
+  ]
 }
