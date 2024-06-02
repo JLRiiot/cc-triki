@@ -24,29 +24,38 @@ struct GridCell
 
 struct PlayerTurn
 {
-    bool isActive;
+    char symbol;
+};
+
+struct ResetButton
+{
+    Rectangle rect;
+};
+
+// Enum for game status
+enum class GameStatusEnum
+{
+    PLAYING,
+    DRAW,
+    X_WIN,
+    O_WIN
 };
 
 struct GameStatus
 {
-    std::string status;
+    GameStatusEnum status;
     std::vector<BoardPosition> winningPositions;
 };
 
 // Systems
-class InputSystem
-{
-public:
-    void Update()
-    {
-    }
-};
 
-class RenderSystem : public System
+class GameSystem : public System
 {
 public:
-    void Update()
+    void Update(Entity game)
     {
+        auto mousePosition = GetMousePosition();
+        auto &playerTurn = gCoordinator.GetComponent<PlayerTurn>(game);
 
         BeginDrawing();
         ClearBackground(RAYWHITE);
@@ -55,6 +64,16 @@ public:
         for (auto const &entity : mEntities)
         {
             auto &cell = gCoordinator.GetComponent<GridCell>(entity);
+
+            if (CheckCollisionPointRec(mousePosition, cell.rect) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+            {
+                if (cell.value != ' ')
+                {
+                    cell.value = playerTurn.symbol;
+                    playerTurn.symbol = playerTurn.symbol == 'X' ? 'O' : 'X';
+                }
+            }
+
             DrawRectangleRec(cell.rect, GREEN);
             DrawRectangleLines(cell.rect.x, cell.rect.y, cell.rect.width, cell.rect.height, BLACK);
             DrawText(&cell.value, cell.rect.x + 50, cell.rect.y + 50, 50, BLACK);
@@ -82,23 +101,39 @@ void CreateCells()
     }
 }
 
+Entity CreateGame()
+{
+    auto game = gCoordinator.CreateEntity();
+    gCoordinator.AddComponent(game, GameStatus{GameStatusEnum::PLAYING, {}});
+    gCoordinator.AddComponent(game, PlayerTurn{'X'});
+    gCoordinator.AddComponent(game, ResetButton{});
+
+    return game;
+}
+
 int main()
 {
     InitWindow(800, 600, "Triki!");
     gCoordinator.Init();
     gCoordinator.RegisterComponent<BoardPosition>();
     gCoordinator.RegisterComponent<GridCell>();
+    gCoordinator.RegisterComponent<GameStatus>();
+    gCoordinator.RegisterComponent<PlayerTurn>();
 
-    auto renderSystem = gCoordinator.RegisterSystem<RenderSystem>();
+    auto renderSystem = gCoordinator.RegisterSystem<GameSystem>();
+    // auto inputSystem = gCoordinator.RegisterSystem<InputSystem>();
+
     Signature renderSystemSignature;
     renderSystemSignature.set(gCoordinator.GetComponentType<GridCell>());
-    gCoordinator.SetSystemSignature<RenderSystem>(renderSystemSignature);
+    gCoordinator.SetSystemSignature<GameSystem>(renderSystemSignature);
 
+    auto game = CreateGame();
     CreateCells();
 
     while (!WindowShouldClose())
     {
-        renderSystem->Update();
+        // inputSystem->Update(game);
+        renderSystem->Update(game);
     }
 
     CloseWindow();
