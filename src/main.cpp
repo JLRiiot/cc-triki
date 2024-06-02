@@ -48,9 +48,16 @@ struct GameStatus
 };
 
 // Systems
-
 class GameSystem : public System
 {
+private:
+    void RenderResetButton(Entity game)
+    {
+        auto &resetButton = gCoordinator.GetComponent<ResetButton>(game);
+        DrawRectangleRec(resetButton.rect, RED);
+        DrawText("Reset", resetButton.rect.x + 50, resetButton.rect.y + 50, 50, BLACK);
+    }
+
 public:
     void Update(Entity game)
     {
@@ -59,7 +66,8 @@ public:
 
         BeginDrawing();
         ClearBackground(RAYWHITE);
-        DrawText("Triki game made by cpo.dev!", 190, 200, 20, DARKGRAY);
+
+        RenderResetButton(game);
 
         for (auto const &entity : mEntities)
         {
@@ -74,7 +82,7 @@ public:
                 }
             }
 
-            DrawRectangleRec(cell.rect, GREEN);
+            DrawRectangleRec(cell.rect, LIGHTGRAY);
             DrawRectangleLines(cell.rect.x, cell.rect.y, cell.rect.width, cell.rect.height, BLACK);
             DrawText(&cell.value, cell.rect.x + 50, cell.rect.y + 50, 50, BLACK);
         }
@@ -106,7 +114,7 @@ Entity CreateGame()
     auto game = gCoordinator.CreateEntity();
     gCoordinator.AddComponent(game, GameStatus{GameStatusEnum::PLAYING, {}});
     gCoordinator.AddComponent(game, PlayerTurn{'X'});
-    gCoordinator.AddComponent(game, ResetButton{});
+    gCoordinator.AddComponent(game, ResetButton{Rectangle{600, 400, 200, 100}});
 
     return game;
 }
@@ -119,9 +127,9 @@ int main()
     gCoordinator.RegisterComponent<GridCell>();
     gCoordinator.RegisterComponent<GameStatus>();
     gCoordinator.RegisterComponent<PlayerTurn>();
+    gCoordinator.RegisterComponent<ResetButton>();
 
     auto renderSystem = gCoordinator.RegisterSystem<GameSystem>();
-    // auto inputSystem = gCoordinator.RegisterSystem<InputSystem>();
 
     Signature renderSystemSignature;
     renderSystemSignature.set(gCoordinator.GetComponentType<GridCell>());
@@ -132,7 +140,6 @@ int main()
 
     while (!WindowShouldClose())
     {
-        // inputSystem->Update(game);
         renderSystem->Update(game);
     }
 
